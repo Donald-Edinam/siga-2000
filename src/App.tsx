@@ -6,6 +6,7 @@ import { ThreeDots } from "react-loader-spinner";
 const url = 'https://siga-2000.pockethost.io/';
 const pocketbase = new PocketBase(url);
 
+
 const fetchData = async () => {
   try {
     const records = await pocketbase.collection('posts').getFullList({

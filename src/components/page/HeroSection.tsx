@@ -2,15 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-interface Post {
-  id: string;
-  announcement_header: string;
-  featured_image: string;
-  description: string;
-  created: string;
-}
+// export interface Post {
+//   id: string;
+//   announcement_header: string;
+//   featured_image: string;
+//   description: string;
+//   created: string;
+// }
 
-export default function HeroSection({ posts }: { posts: Post[] }) {
+export default function HeroSection({ posts }: { posts: any[] }) {
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -72,7 +72,7 @@ export default function HeroSection({ posts }: { posts: Post[] }) {
             <div className="absolute inset-0">
               <img
                 src={post.featured_image}
-                alt={post.title}
+                alt={post.description}
                 className="object-cover w-full h-full"
                 sizes="100vw"
               />
