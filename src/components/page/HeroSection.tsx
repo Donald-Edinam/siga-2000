@@ -148,7 +148,7 @@ export default function HeroSection({ posts }: HeroSectionProps) {
         </div>
 
         {/* Fixed Bottom Navigation with Glassmorphism */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 h-20">
+        <div className="fixed bottom-8  w-[80%] left-[10%] z-50 h-20 h-[120px]">
           {/* Animated Gradient Background */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-teal-500/30 animate-gradient-x"></div>
@@ -156,7 +156,7 @@ export default function HeroSection({ posts }: HeroSectionProps) {
           </div>
 
           {/* Navigation Content */}
-          <div className="relative z-10 max-w-6xl mx-auto h-full px-4">
+          <div className="relative rounded-md z-10 max-w-6xl mx-auto h-full px-4">
             <div className="grid grid-cols-6 h-full">
               {navigationItems.map((item, index) => (
                 <a
@@ -165,10 +165,10 @@ export default function HeroSection({ posts }: HeroSectionProps) {
                   className="group flex flex-col items-center justify-center p-2 transition-all duration-300 hover:bg-white/20 rounded-lg"
                 >
                   <div className="relative">
-                    <item.icon className="h-6 w-6 mb-1 text-gray-800 group-hover:scale-110 transition-transform duration-300" />
+                    <item.icon className="w-40 mb-1 text-gray-800 group-hover:scale-110 transition-transform duration-300" />
                     <div className="absolute inset-0 bg-white/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-                  <span className="text-xs font-medium text-gray-800 group-hover:text-gray-900 transition-colors duration-300">
+                  <span className="text-md font-medium text-gray-800 group-hover:text-gray-900 transition-colors duration-300">
                     {item.label}
                   </span>
                 </a>
