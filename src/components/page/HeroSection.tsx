@@ -143,9 +143,9 @@ export default function HeroSection({ posts }: HeroSectionProps) {
         </Button>
 
         {/* Hashtag */}
-        <div className="absolute bottom-24 right-[50%] text-white z-10">
+        {/* <div className="absolute bottom-24 right-[50%] text-white z-10">
           <p className="text-sm md:text-base">#DISCOVER</p>
-        </div>
+        </div> */}
 
         {/* Fixed Bottom Navigation with Glassmorphism */}
         <div className="fixed bottom-8  w-[80%] left-[10%] z-50 h-20 h-[120px]">
@@ -156,7 +156,7 @@ export default function HeroSection({ posts }: HeroSectionProps) {
           </div>
 
           {/* Navigation Content */}
-          <div className="relative rounded-md z-10 max-w-6xl mx-auto h-full px-4">
+          <div className="relative rounded-md z-10 max-w-6xl mx-auto h-full">
             <div className="grid grid-cols-6 h-full">
               {navigationItems.map((item, index) => (
                 <a
@@ -166,7 +166,7 @@ export default function HeroSection({ posts }: HeroSectionProps) {
                 >
                   <div className="relative">
                     <item.icon className="w-40 mb-1 text-gray-800 group-hover:scale-110 transition-transform duration-300" />
-                    <div className="absolute inset-0 bg-white/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-white/40 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                   <span className="text-md font-medium text-gray-800 group-hover:text-gray-900 transition-colors duration-300">
                     {item.label}
