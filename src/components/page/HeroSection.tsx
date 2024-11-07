@@ -24,7 +24,7 @@ export default function HeroSection({ posts }: HeroSectionProps) {
     { icon: GOOGLE_LOGO, label: 'GOOGLE SEARCH', href: ' https://www.google.com/' },
     { icon: ENTITY_LOGO, label: 'ENTITY PORTAL', href: 'https://entities.siga.gov.gh/' },
     // { icon: Mail, label: 'Contact', href: '/contact' },
-    { icon: Phone, label: 'SUPPORT', href: '#' }
+    { icon: Phone, label: 'HELP DESK', href: 'https://apps.powerapps.com/play/e/default-645d9c1e-d1b8-4c11-b103-1999d38ec449/a/4fc8f48f-d3d2-4705-bdd0-823307df68c3?tenantId=645d9c1e-d1b8-4c11-b103-1999d38ec449&hidenavbar=true' }
   ];
 
   if (!posts || posts.length === 0) {
