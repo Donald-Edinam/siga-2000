@@ -1,15 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '../ui/button';
-import { 
-  ChevronLeft, 
+import {
+  ChevronLeft,
   ChevronRight,
-  Home,
-  Book,
-  Calendar,
-  Users,
-  Mail,
   Phone
 } from 'lucide-react';
+import SIGA_LOGO from '../../../public/siga-logo.jpg';
+import MS_LOGO from '../../../public/download.png';
+import GOOGLE_LOGO from '../../../public/download.jpg';
+import ENTITY_LOGO from '../../../public/entity.ico';
 
 interface HeroSectionProps {
   posts: any[];
@@ -20,12 +19,12 @@ export default function HeroSection({ posts }: HeroSectionProps) {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const navigationItems = [
-    { icon: Home, label: 'Home', href: '/' },
-    { icon: Book, label: 'Academics', href: '/academics' },
-    { icon: Calendar, label: 'Events', href: '/events' },
-    { icon: Users, label: 'Community', href: '/community' },
-    { icon: Mail, label: 'Contact', href: '/contact' },
-    { icon: Phone, label: 'Support', href: '/support' }
+    { icon: SIGA_LOGO, label: 'SIGA WEB', href: 'https://www.siga.gov.gh' },
+    { icon: MS_LOGO, label: 'SWP', href: 'https://sigaghana.sharepoint.com/sites/swpsiga/SitePages/Index.aspx' },
+    { icon: GOOGLE_LOGO, label: 'GOOGLE SEARCH', href: ' https://www.google.com/' },
+    { icon: ENTITY_LOGO, label: 'ENTITY PORTAL', href: 'https://entities.siga.gov.gh/' },
+    // { icon: Mail, label: 'Contact', href: '/contact' },
+    { icon: Phone, label: 'SUPPORT', href: '/support' }
   ];
 
   if (!posts || posts.length === 0) {
@@ -114,8 +113,8 @@ export default function HeroSection({ posts }: HeroSectionProps) {
               variant="ghost"
               size="icon"
               className={`w-3 h-3 p-0 rounded-full transition-all duration-300 
-                ${index === current 
-                  ? 'bg-white hover:bg-white scale-125' 
+                ${index === current
+                  ? 'bg-white hover:bg-white scale-125'
                   : 'bg-gray-400 hover:bg-white'}`}
               aria-label={`Go to slide ${index + 1}`}
             />
@@ -148,11 +147,11 @@ export default function HeroSection({ posts }: HeroSectionProps) {
         </div> */}
 
         {/* Fixed Bottom Navigation with Glassmorphism */}
-        <div className="fixed bottom-8  w-[80%] left-[10%] z-50 h-20 h-[120px]">
+        <div className="fixed bottom-8 w-[80%] left-[16%] z-50 h-20 h-[120px]">
           {/* Animated Gradient Background */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-teal-500/30 animate-gradient-x"></div>
-            <div className="absolute inset-0 backdrop-blur-md bg-white/30"></div>
+            {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-blue-500/30 to-teal-500/30 animate-gradient-x"></div>
+            <div className="absolute inset-0 backdrop-blur-md bg-white/30"></div> */}
           </div>
 
           {/* Navigation Content */}
@@ -162,10 +161,16 @@ export default function HeroSection({ posts }: HeroSectionProps) {
                 <a
                   key={index}
                   href={item.href}
-                  className="group flex flex-col items-center justify-center p-2 transition-all duration-300 hover:bg-white/20 rounded-lg"
+                  className="group flex flex-col bg-white mx-2 items-center justify-center p-2 transition-all duration-300 rounded-lg hover:shadow-lg hover:scale-105"
                 >
                   <div className="relative">
-                    <item.icon className="w-40 mb-1 text-gray-800 group-hover:scale-110 transition-transform duration-300" />
+                    {typeof item.icon === 'string' ? (
+                      // Render an img tag if the icon is a string path
+                      <img src={item.icon} alt={item.label} className="w-10 h-10 mb-1 text-gray-800 group-hover:scale-110 transition-transform duration-300" />
+                    ) : (
+                      // Otherwise, render it as a component
+                      <item.icon className="w-10 h-10 mb-1 text-gray-800 group-hover:scale-110 transition-transform duration-300" />
+                    )}
                     <div className="absolute inset-0 bg-white/40 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                   <span className="text-md font-medium text-gray-800 group-hover:text-gray-900 transition-colors duration-300">
@@ -173,6 +178,7 @@ export default function HeroSection({ posts }: HeroSectionProps) {
                   </span>
                 </a>
               ))}
+
             </div>
           </div>
 
