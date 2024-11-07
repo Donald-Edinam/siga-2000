@@ -161,7 +161,7 @@ export default function HeroSection({ posts }: HeroSectionProps) {
                 <a
                   key={index}
                   href={item.href}
-                  className="group flex flex-col bg-white mx-2 items-center justify-center p-2 transition-all duration-300 rounded-lg hover:shadow-lg hover:scale-105"
+                  className="group flex flex-col bg-white/40 mx-2 items-center justify-center p-2 transition-all duration-300 rounded-lg hover:shadow-lg hover:bg-white hover:scale-105"
                 >
                   <div className="relative">
                     {typeof item.icon === 'string' ? (
