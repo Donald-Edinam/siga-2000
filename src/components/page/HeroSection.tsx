@@ -19,8 +19,8 @@ export default function HeroSection({ posts }: HeroSectionProps) {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const navigationItems = [
-    { icon: SIGA_LOGO, label: 'SIGA WEB', href: 'https://www.siga.gov.gh' },
-    { icon: MS_LOGO, label: 'SWP', href: 'https://sigaghana.sharepoint.com/sites/swpsiga/SitePages/Index.aspx' },
+    { icon: SIGA_LOGO, label: 'SIGA WEBSITE', href: 'https://www.siga.gov.gh' },
+    { icon: MS_LOGO, label: 'SMART WORKPLACE', href: 'https://sigaghana.sharepoint.com/sites/swpsiga/SitePages/Index.aspx' },
     { icon: GOOGLE_LOGO, label: 'GOOGLE SEARCH', href: ' https://www.google.com/' },
     { icon: ENTITY_LOGO, label: 'ENTITY PORTAL', href: 'https://entities.siga.gov.gh/' },
     // { icon: Mail, label: 'Contact', href: '/contact' },
