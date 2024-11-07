@@ -24,7 +24,7 @@ export default function HeroSection({ posts }: HeroSectionProps) {
     { icon: GOOGLE_LOGO, label: 'GOOGLE SEARCH', href: ' https://www.google.com/' },
     { icon: ENTITY_LOGO, label: 'ENTITY PORTAL', href: 'https://entities.siga.gov.gh/' },
     // { icon: Mail, label: 'Contact', href: '/contact' },
-    { icon: Phone, label: 'SUPPORT', href: '/support' }
+    { icon: Phone, label: 'SUPPORT', href: '#' }
   ];
 
   if (!posts || posts.length === 0) {
