@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -5,11 +6,24 @@ const fs = require('fs');
 const cors = require('cors');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 
+// Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-require('dotenv').config();
+// Database connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('Connected to MongoDB Atlas'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+// Models
+const User = require('./models/User');
+const Post = require('./models/Post');
 
 // Middleware
 app.use(cors({
@@ -19,71 +33,98 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session configuration
+// Session configuration with MongoDB Atlas store
+// Simplified session configuration for development
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
+  secret: process.env.SESSION_SECRET,
+  resave: true,
+  saveUninitialized: true,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
+// Debug middleware (remove in production)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path}`, {
+      session: req.session ? {
+        id: req.sessionID,
+        authenticated: req.session.authenticated,
+        userId: req.session.userId
+      } : 'No session'
+    });
+    next();
+  });
+}
+
+// Serve uploads directory
 app.use('/uploads', express.static('uploads'));
 
-// Simple user database
-const users = [
-  {
-    id: 1,
-    username: 'admin',
-    password: '$2b$10$2OQXQXgk/iMwQZIbvJH.KeJn/2OjPZHvG9RKJy9Z0xyfpLUEgKvj6' // admin123
+// Authentication Middleware
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.authenticated) {
+    return next();
   }
-];
+  
+  if (req.path.startsWith('/api/')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  
+  res.redirect('/login.html');
+};
 
-// Login route
-app.post('/login', (req, res) => {
+// Routes
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   
-  const user = users.find(u => u.username === username);
-  
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
+  try {
+    const user = await User.findOne({ username });
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
-  bcrypt.compare(password, user.password, (err, result) => {
-    if (err || !result) {
+    const isMatch = await user.comparePassword(password);
+    
+    if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    req.session.userId = user.id;
+    req.session.userId = user._id;
     req.session.authenticated = true;
     
-    res.json({ success: true, redirect: '/admin' });
-  });
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Failed to save session' });
+      }
+      
+      console.log('Login successful:', {
+        sessionId: req.sessionID,
+        userId: user._id
+      });
+      
+      res.json({ success: true, redirect: '/' });
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Server error during login' });
+  }
 });
 
-// Logout route
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
       return res.status(500).json({ error: 'Logout failed' });
     }
-    res.clearCookie('connect.sid');
+    res.clearCookie('sessionId');
     res.redirect('/login.html');
   });
 });
 
-// Authentication middleware
-const requireAuth = (req, res, next) => {
-  if (req.session && req.session.authenticated) {
-    return next();
-  }
-  res.status(401).json({ error: 'Unauthorized' });
-};
-
-// Auth check endpoint
 app.get('/api/check-auth', (req, res) => {
   if (req.session.authenticated) {
     res.status(200).end();
@@ -92,33 +133,30 @@ app.get('/api/check-auth', (req, res) => {
   }
 });
 
-// Serve login page
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Explicit login page route
 app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Admin Route
-app.use('/admin', requireAuth, express.static(path.join(__dirname, 'public'), {
-  maxAge: '1y',
-  immutable: true,
-  setHeaders: (res, path) => {
-    if (path.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache');
-    }
-    res.setHeader('X-Frame-Options', 'DENY');
-  }
-}));
-
-app.use('/assets', requireAuth, express.static(path.join(__dirname, 'public/assets'), {
-  maxAge: '1y',
-  immutable: true
-}));
-
-app.get('/admin/*', requireAuth, (req, res) => {
+// Protected admin routes
+app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/*', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Root redirect
+app.get('/', (req, res) => {
+  if (req.session?.authenticated) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  } else {
+    res.redirect('/login.html');
+  }
 });
 
 // Create uploads directory if it doesn't exist
@@ -126,31 +164,20 @@ if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
 }
 
-// Simple in-memory storage
-let posts = [
-  {
-    id: '1',
-    announcement_header: 'Welcome to SIGA',
-    description: 'This is a sample announcement for the SIGA website.',
-    featured_image_filename: 'image1.jpg',
-    created: new Date().toISOString(),
-    updated: new Date().toISOString()
-  }
-];
-
 // Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'uploads/');
+//   },
+//   filename: (req, file, cb) => {
+//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+//     cb(null, uniqueSuffix + path.extname(file.originalname));
+//   }
+// });
 
-const upload = multer({ 
-  storage: storage,
+const upload = multer({
+  storage: multer.memoryStorage(), // Store file in memory as Buffer
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -161,93 +188,51 @@ const upload = multer({
     } else {
       cb(new Error('Only image files are allowed!'));
     }
-  },
-  limits: { fileSize: 5 * 1024 * 1024 }
+  }
 });
 
 // Protect API routes
 app.use('/api', requireAuth);
 
 // API Routes
-app.get('/api/posts', (req, res) => {
-  const postsWithImageUrls = posts.map(post => ({
-    ...post,
-    featured_image: post.featured_image_filename ? `${req.protocol}://${req.get('host')}/uploads/${post.featured_image_filename}` : null
-  }));
-  
-  postsWithImageUrls.sort((a, b) => new Date(b.created) - new Date(a.created));
-  res.json(postsWithImageUrls);
-});
-
-app.get('/api/posts/:id', (req, res) => {
-  const post = posts.find(p => p.id === req.params.id);
-  if (!post) return res.status(404).json({ error: 'Post not found' });
-  
-  const postWithImageUrl = {
-    ...post,
-    featured_image: post.featured_image_filename ? `${req.protocol}://${req.get('host')}/uploads/${post.featured_image_filename}` : null
-  };
-  
-  res.json(postWithImageUrl);
-});
-
-app.post('/api/posts', upload.single('image'), (req, res) => {
+app.get('/api/posts', async (req, res) => {
   try {
-    const { announcement_header, description } = req.body;
-    
-    if (!announcement_header || !description) {
-      return res.status(400).json({ error: 'Title and description are required' });
-    }
-    
-    const newPost = {
-      id: Date.now().toString(),
-      announcement_header,
-      description,
-      featured_image_filename: req.file ? req.file.filename : null,
-      created: new Date().toISOString(),
-      updated: new Date().toISOString()
-    };
-    
-    posts.push(newPost);
-    
-    const postWithImageUrl = {
-      ...newPost,
-      featured_image: newPost.featured_image_filename ? `${req.protocol}://${req.get('host')}/uploads/${newPost.featured_image_filename}` : null
-    };
-    
-    res.status(201).json(postWithImageUrl);
+    const posts = await Post.find().sort({ created: -1 });
+    const postsWithImageUrls = posts.map(post => ({
+      ...post._doc,
+      featured_image: post.featured_image_filename ? 
+        `${req.protocol}://${req.get('host')}/uploads/${post.featured_image_filename}` : null
+    }));
+    res.json(postsWithImageUrls);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-
-app.put('/api/posts/:id', upload.single('image'), (req, res) => {
+// Get image by post ID
+app.get('/api/posts/:id/image', async (req, res) => {
   try {
-    const postIndex = posts.findIndex(p => p.id === req.params.id);
-    if (postIndex === -1) return res.status(404).json({ error: 'Post not found' });
-    
-    const { announcement_header, description } = req.body;
-    const existingPost = posts[postIndex];
-    
-    if (req.file && existingPost.featured_image_filename) {
-      const oldImagePath = path.join('uploads', existingPost.featured_image_filename);
-      if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
+    const post = await Post.findById(req.params.id);
+    if (!post || !post.featured_image || !post.featured_image.data) {
+      return res.status(404).json({ error: 'Image not found' });
     }
     
-    const updatedPost = {
-      ...existingPost,
-      announcement_header: announcement_header || existingPost.announcement_header,
-      description: description || existingPost.description,
-      featured_image_filename: req.file ? req.file.filename : existingPost.featured_image_filename,
-      updated: new Date().toISOString()
-    };
-    
-    posts[postIndex] = updatedPost;
+    res.set('Content-Type', post.featured_image.contentType);
+    res.send(post.featured_image.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/posts/:id', async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
     
     const postWithImageUrl = {
-      ...updatedPost,
-      featured_image: updatedPost.featured_image_filename ? `${req.protocol}://${req.get('host')}/uploads/${updatedPost.featured_image_filename}` : null
+      ...post._doc,
+      featured_image: post.featured_image_filename ? 
+        `${req.protocol}://${req.get('host')}/uploads/${post.featured_image_filename}` : null
     };
     
     res.json(postWithImageUrl);
@@ -256,28 +241,111 @@ app.put('/api/posts/:id', upload.single('image'), (req, res) => {
   }
 });
 
-app.delete('/api/posts/:id', (req, res) => {
+// Create new post
+app.post('/api/posts', upload.single('image'), async (req, res) => {
   try {
-    const postIndex = posts.findIndex(p => p.id === req.params.id);
-    if (postIndex === -1) return res.status(404).json({ error: 'Post not found' });
+    const { announcement_header, description } = req.body;
     
-    const post = posts[postIndex];
+    if (!announcement_header || !description) {
+      return res.status(400).json({ error: 'Title and description are required' });
+    }
+    
+    const newPost = new Post({
+      announcement_header,
+      description
+    });
+
+    if (req.file) {
+      newPost.featured_image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
+    }
+    
+    await newPost.save();
+    res.status(201).json(newPost);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update post
+app.put('/api/posts/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { announcement_header, description } = req.body;
+    const post = await Post.findById(req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    post.announcement_header = announcement_header || post.announcement_header;
+    post.description = description || post.description;
+    post.updated = Date.now();
+
+    if (req.file) {
+      post.featured_image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
+    }
+    
+    await post.save();
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/posts/:id', async (req, res) => {
+  try {
+    const post = await Post.findByIdAndDelete(req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
     
     if (post.featured_image_filename) {
       const imagePath = path.join('uploads', post.featured_image_filename);
       if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
     }
     
-    posts.splice(postIndex, 1);
     res.json({ message: 'Post deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Admin panel: http://localhost:${PORT}/admin`);
+  console.log(`Admin panel: http://localhost:${PORT}/`);
   console.log(`Login page: http://localhost:${PORT}/login.html`);
+  
+  // Create initial admin user if not exists
+  createAdminUser();
 });
+
+// Helper function to create initial admin user
+async function createAdminUser() {
+  try {
+    const existingAdmin = await User.findOne({ username: 'admin' });
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash('admin11', 10);
+      const admin = new User({
+        username: 'admin',
+        password: hashedPassword
+      });
+      await admin.save();
+      console.log('Admin user created successfully');
+    }
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+  }
+}

@@ -266,8 +266,11 @@
         });
         
         const data = await response.json();
+
+        console.log("response data", data);
+        console.log("Response", response);
         
-        if (response.ok) {
+        if (data.success) {
           window.location.href = data.redirect;
         } else {
           errorMessage.textContent = data.error || 'Authentication failed. Please check your credentials.';
