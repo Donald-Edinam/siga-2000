@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ThreeDots } from "react-loader-spinner";
 
 // Change this to your backend URL
-const API_URL = 'http://localhost:3001'; // or your deployed backend URL
+const API_URL = import.meta.env.VITE_PUBLIC_URL
 
 const fetchData = async () => {
   try {
