@@ -329,7 +329,7 @@ app.listen(PORT, () => {
   console.log(`Login page: http://localhost:${PORT}/login.html`);
   
   // Create initial admin user if not exists
-  createAdminUser();
+  // createAdminUser();
 });
 
 // Helper function to create initial admin user
