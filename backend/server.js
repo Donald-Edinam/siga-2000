@@ -67,7 +67,11 @@ app.get('/logout', (req, res) => {
 });
 
 // Protected Admin Route
-app.use('/admin', checkAuth, express.static('public'));
+app.use('/admin', checkAuth, express.static(path.join(__dirname, '../frontend/dist')));
+
+app.get('/admin/*', checkAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+});
 
 
 // Create uploads directory if it doesn't exist
