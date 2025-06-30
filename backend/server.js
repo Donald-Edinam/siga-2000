@@ -333,19 +333,19 @@ app.listen(PORT, () => {
 });
 
 // Helper function to create initial admin user
-async function createAdminUser() {
-  try {
-    const existingAdmin = await User.findOne({ username: 'admin' });
-    if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash('admin11', 10);
-      const admin = new User({
-        username: 'admin',
-        password: hashedPassword
-      });
-      await admin.save();
-      console.log('Admin user created successfully');
-    }
-  } catch (error) {
-    console.error('Error creating admin user:', error);
-  }
-}
+// async function createAdminUser() {
+//   try {
+//     const existingAdmin = await User.findOne({ username: 'admin' });
+//     if (!existingAdmin) {
+//       const hashedPassword = await bcrypt.hash('admin11', 10);
+//       const admin = new User({
+//         username: 'admin',
+//         password: hashedPassword
+//       });
+//       await admin.save();
+//       console.log('Admin user created successfully');
+//     }
+//   } catch (error) {
+//     console.error('Error creating admin user:', error);
+//   }
+// }
