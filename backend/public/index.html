@@ -4,259 +4,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIGA | Content Management</title>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts: Inter -->
+    <title>SIGA Enterprise CMS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Custom Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            DEFAULT: '#28a745', // Green
-                            hover: '#218838',
-                        },
-                        warning: {
-                            DEFAULT: '#ffc107', // Yellow
-                            hover: '#e0a800',
-                        },
-                        danger: {
-                            DEFAULT: '#dc3545', // Red
-                            hover: '#c82333',
-                        },
-                        success: {
-                            DEFAULT: '#28a745',
-                        },
-                        neutral: {
-                            100: '#f8f9fa',
-                            200: '#e9ecef',
-                            300: '#dee2e6',
-                            400: '#ced4da',
-                            500: '#adb5bd',
-                            600: '#6c757d',
-                            700: '#495057',
-                            800: '#343a40',
-                            900: '#212529'
-                        },
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Custom Styles -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            --siga-green: #28a745;
+            --siga-green-hover: #218838;
+            --siga-yellow: #ffc107;
+            --siga-yellow-hover: #e0a800;
+            --siga-red: #dc3545;
+            --siga-red-hover: #c82333;
+            --siga-light: #e9f5eb;
+            --siga-dark: #1e4620;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #ffffff;
-            /* White background */
+            font-family: "Titillium Web" sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
         }
 
-        /* Modal styles */
-        .modal {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .dashboard-header {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        .modal.active {
-            display: flex;
-            opacity: 1;
+        .stat-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .post-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .post-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+        }
+
+        .btn-primary {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(40, 167, 69, 0.15), 0 2px 4px -1px rgba(40, 167, 69, 0.06);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(40, 167, 69, 0.2), 0 4px 6px -2px rgba(40, 167, 69, 0.1);
+        }
+
+        .notification-toast {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+        }
+
+        .modal-backdrop {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
         }
 
         .modal-content {
-            transform: scale(0.95);
-            transition: transform 0.3s ease;
-        }
-
-        .modal.active .modal-content {
-            transform: scale(1);
-        }
-
-        /* Custom scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #adb5bd;
-            border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #6c757d;
-        }
-
-        /* Line clamp utility */
-        .line-clamp-1 {
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 1;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
         }
 
         .line-clamp-2 {
-            overflow: hidden;
             display: -webkit-box;
-            -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .line-clamp-3 {
-            overflow: hidden;
             display: -webkit-box;
-            -webkit-box-orient: vertical;
             -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        /* Notification Toast */
-        #notification-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-            transform: translateX(120%);
-            transition: transform 0.4s ease-in-out;
+        .siga-badge {
+            background-color: #e9f5eb;
+            color: #1e4620;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
-        #notification-toast.show {
-            transform: translateX(0);
+        .siga-divider {
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .siga-tag {
+            background-color: #fff8e6;
+            color: #7d6608;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .stat-card {
+                margin-bottom: 1rem;
+            }
+
+            .mobile-flex-col {
+                flex-direction: column;
+            }
+
+            .mobile-mt-4 {
+                margin-top: 1rem;
+            }
         }
     </style>
 </head>
 
-<body class="bg-neutral-100 min-h-screen">
-
+<body class="min-h-screen flex flex-col">
     <!-- Notification Toast -->
-    <div id="notification-toast" class="p-4 rounded-lg shadow-lg text-white max-w-sm">
-        <p id="notification-message"></p>
+    <div id="notification-toast"
+        class="fixed top-6 right-6 z-[100] p-4 text-white max-w-sm notification-toast transform translate-x-[120%] transition-transform duration-400">
+        <p id="notification-message" class="flex items-center">
+            <i id="notification-icon" class="fas fa-check-circle mr-3"></i>
+            <span>Operation completed successfully</span>
+        </p>
     </div>
 
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header -->
-        <header class="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl font-bold text-neutral-800">Content Management</h1>
-                    <p class="text-sm text-neutral-500 mt-1">SIGA Posts Administration Panel</p>
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4 mobile-flex-col">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <div class="bg-siga-green p-2 rounded-lg mr-3">
+                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">SIGA Enterprise</h1>
+                        <p class="text-xs text-gray-600">Content Management Hub</p>
+                    </div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="openModal()"
-                        class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg font-semibold text-sm shadow-sm transition-colors duration-200 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        New Post
+
+                <div class="flex items-center gap-6 mobile-flex-col mobile-mt-4">
+                    <div class="flex items-center">
+                        <div class="mr-3 text-right">
+                            <p class="text-sm font-medium text-gray-800">System Administrator</p>
+                            <p class="text-xs text-gray-600">admin@siga.com</p>
+                        </div>
+                        <!-- <div class="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10" /> -->
+                    </div>
+
+                    <button id="logoutBtn"
+                        class="text-gray-600 hover:text-gray-800 transition-colors group flex items-center mt-4 md:mt-0">
+                        <i
+                            class="fas fa-sign-out-alt mr-2 text-gray-500 group-hover:text-siga-red transition-colors"></i>
+                        <span class="font-medium">Logout</span>
                     </button>
-                    <a href="/logout" class="text-neutral-600 hover:text-neutral-800 text-sm font-semibold transition-colors duration-200">Logout</a>
                 </div>
             </div>
-        </header>
-
-        <!-- Posts Grid -->
-        <main id="postsContainer" class="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-            <!-- Posts will be loaded here -->
-        </main>
-
-        <!-- Loading State -->
-        <div id="loading" class="text-center py-16">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p class="mt-4 text-neutral-600">Loading content...</p>
         </div>
+    </header>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="text-center py-20 bg-white rounded-xl shadow-sm hidden">
-            <div class="text-neutral-400 text-6xl mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor" stroke-width="1">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+    <!-- Stats Bar -->
+    <div class="bg-white border-b border-gray-100 py-4">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="stat-card bg-white p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-600">Total Announcements</p>
+                            <h3 class="text-2xl font-bold mt-1" id="totalPosts">0</h3>
+                        </div>
+                        <div class="p-3 rounded-lg bg-siga-light text-siga-green">
+                            <i class="fas fa-bullhorn text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 flex items-center">
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span>Updated just now</span>
+                    </div>
+                </div>
+
+                <!-- <div class="stat-card bg-white p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-600">Active Users</p>
+                            <h3 class="text-2xl font-bold mt-1">1.2K</h3>
+                        </div>
+                        <div class="p-3 rounded-lg bg-green-50 text-green-600">
+                            <i class="fas fa-users text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 flex items-center">
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span>3.5% from last month</span>
+                    </div>
+                </div> -->
+                <!--                 
+                <div class="stat-card bg-white p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-600">Pending Reviews</p>
+                            <h3 class="text-2xl font-bold mt-1 text-siga-yellow">0</h3>
+                        </div>
+                        <div class="p-3 rounded-lg bg-amber-50 text-amber-600">
+                            <i class="fas fa-file-alt text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        Needs your attention
+                    </div>
+                </div> -->
+
+                <div class="stat-card bg-white p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-600">System Status</p>
+                            <h3 class="text-2xl font-bold mt-1 text-siga-green">Operational</h3>
+                        </div>
+                        <div class="p-3 rounded-lg bg-gray-50 text-gray-600">
+                            <i class="fas fa-server text-lg"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        All systems normal
+                    </div>
+                </div>
             </div>
-            <h2 class="text-xl font-semibold text-neutral-700 mb-2">No posts to display</h2>
-            <p class="text-neutral-500 mb-6">Get started by creating your first post.</p>
-            <button onclick="openModal()"
-                class="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg font-semibold shadow-sm transition-colors duration-200">
-                Create First Post
-            </button>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="modal" class="modal fixed inset-0 bg-black bg-opacity-60 items-center justify-center z-50 p-4">
-        <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-            <header class="p-6 border-b border-neutral-200 flex justify-between items-center">
-                <h2 id="modalTitle" class="text-xl font-bold text-neutral-800">Add New Post</h2>
-                <button onclick="closeModal()"
-                    class="text-neutral-500 hover:text-neutral-800 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+    <!-- Main Content -->
+    <div class="flex-grow">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-2xl font-bold text-gray-800">Announcements</h2>
+                    <p class="text-gray-600 mt-1">Manage your enterprise communications</p>
+                </div>
+                <div class="flex items-center gap-3 bg-green-600 rounded hover:bg-green-700 active:bg-green-800">
+                    <!-- <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input id="searchInput" type="text" placeholder="Search announcements..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-siga-green focus:border-transparent transition-all duration-200 w-full md:w-64">
+                    </div> -->
+                    <button onclick="openModal()"
+                        class="btn-primary bg-siga-green hover:bg-siga-green-hover text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors duration-200 flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        <span class="">New Announcement</span>
+                        <span class="md:hidden">New</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Posts Grid -->
+            <main id="postsContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Posts will be loaded here dynamically -->
+            </main>
+
+            <!-- Loading State -->
+            <div id="loading" class="text-center py-16">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-siga-green mx-auto"></div>
+                <p class="mt-4 text-gray-600">Loading enterprise content...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-20 bg-white rounded-xl shadow-sm hidden">
+                <div class="text-gray-300 text-6xl mb-4">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-700 mb-2">No announcements yet</h2>
+                <p class="text-gray-500 mb-6">Create your first announcement to get started</p>
+                <button onclick="openModal()"
+                    class="btn-primary bg-siga-green hover:bg-siga-green-hover text-white px-6 py-3 rounded-lg font-semibold shadow-sm transition-colors duration-200">
+                    Create Announcement
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-100 py-6">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <div class="bg-siga-green p-1.5 rounded mr-2">
+                        <i class="fas fa-shield-alt text-white text-xs"></i>
+                    </div>
+                    <span class="text-sm text-gray-600">SIGA Enterprise CMS v1.0.0</span>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">
+                        © 2025 SIGA Solutions. All rights reserved.
+                        <a href="#" class="text-siga-green hover:text-siga-dark ml-2">Privacy Policy</a> •
+                        <a href="#" class="text-siga-green hover:text-siga-dark ml-1">Terms of Service</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal for Create/Edit -->
+    <div id="modal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop opacity-0 invisible transition-all duration-300">
+        <div
+            class="modal-content bg-white w-full max-w-2xl max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300">
+            <header class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 id="modalTitle" class="text-xl font-bold text-gray-800">Create New Announcement</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-800 transition-colors duration-200">
+                    <i class="fas fa-times"></i>
                 </button>
             </header>
 
-            <form id="postForm" enctype="multipart/form-data" class="p-6 overflow-y-auto custom-scrollbar flex-grow">
+            <form id="postForm" enctype="multipart/form-data" class="p-6 overflow-y-auto flex-grow">
                 <input type="hidden" id="postId" name="postId">
 
                 <div class="mb-5">
-                    <label for="announcement_header" class="block text-sm font-medium text-neutral-700 mb-2">
-                        Announcement Header <span class="text-danger">*</span>
+                    <label for="announcement_header" class="block text-sm font-medium text-gray-700 mb-2">
+                        Announcement Header <span class="text-siga-red">*</span>
                     </label>
                     <input type="text" id="announcement_header" name="announcement_header" required
-                        class="w-full p-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow duration-200 shadow-sm">
+                        class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-siga-green focus:border-transparent transition-shadow duration-200 shadow-sm">
                 </div>
 
                 <div class="mb-5">
-                    <label for="description" class="block text-sm font-medium text-neutral-700 mb-2">
-                        Description <span class="text-danger">*</span>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description <span class="text-siga-red">*</span>
                     </label>
                     <textarea id="description" name="description" rows="5" required
-                        class="w-full p-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow duration-200 shadow-sm"></textarea>
+                        class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-siga-green focus:border-transparent transition-shadow duration-200 shadow-sm"></textarea>
                 </div>
 
                 <div class="mb-6">
-                    <label for="image" class="block text-sm font-medium text-neutral-700 mb-2">
+                    <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
                         Featured Image
                     </label>
                     <div
-                        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-300 border-dashed rounded-md">
+                        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200 border-dashed rounded-md">
                         <div class="space-y-1 text-center">
-                            <svg class="mx-auto h-12 w-12 text-neutral-400" stroke="currentColor" fill="none"
-                                viewBox="0 0 48 48" aria-hidden="true">
-                                <path
-                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <div class="flex text-sm text-neutral-600">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400"></i>
+                            <div class="flex text-sm text-gray-600 justify-center">
                                 <label for="image"
-                                    class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-hover focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary">
+                                    class="relative cursor-pointer bg-white rounded-md font-medium text-siga-green hover:text-siga-dark focus-within:outline-none">
                                     <span>Upload a file</span>
                                     <input id="image" name="image" type="file" class="sr-only" accept="image/*">
                                 </label>
                                 <p class="pl-1">or drag and drop</p>
                             </div>
-                            <p class="text-xs text-neutral-500">PNG, JPG, GIF, WebP up to 5MB</p>
+                            <p class="text-xs text-gray-500">PNG, JPG up to 5MB</p>
                         </div>
                     </div>
 
                     <!-- Current image preview -->
                     <div id="currentImagePreview" class="mt-4 hidden">
-                        <p class="text-sm font-medium text-neutral-700 mb-2">Current image:</p>
+                        <p class="text-sm font-medium text-gray-700 mb-2">Current image:</p>
                         <div class="relative w-48 h-32">
                             <img id="currentImage" src="" alt="Current image"
                                 class="w-full h-full object-cover rounded-lg shadow-md">
@@ -264,34 +380,79 @@
                     </div>
                 </div>
             </form>
-            
-            <footer class="p-6 border-t border-neutral-200 bg-neutral-100/50 flex justify-end gap-4">
+
+            <footer class="p-6 border-t border-gray-200 bg-gray-50 flex justify-end gap-4">
                 <button type="button" onclick="closeModal()"
-                    class="px-6 py-2.5 border border-neutral-300 rounded-lg text-sm font-semibold text-neutral-700 bg-white hover:bg-neutral-100 transition-colors duration-200">
+                    class="px-6 py-2.5 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200">
                     Cancel
                 </button>
                 <button type="submit" form="postForm"
-                    class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-semibold shadow-sm transition-colors duration-200 flex items-center justify-center min-w-[120px]">
-                    <span id="submitText">Create Post</span>
+                    class="btn-primary px-6 py-2.5 bg-siga-green hover:bg-siga-green-hover text-white rounded-lg text-sm font-semibold shadow-sm transition-colors duration-200 flex items-center justify-center min-w-[120px]">
+                    <span id="submitText">Create</span>
                 </button>
             </footer>
         </div>
     </div>
 
     <script>
+        // Global variables
         let posts = [];
         let editingPost = null;
 
-        document.addEventListener('DOMContentLoaded', loadPosts);
+        // DOM Elements
+        const postsContainer = document.getElementById('postsContainer');
+        const loadingElement = document.getElementById('loading');
+        const emptyStateElement = document.getElementById('emptyState');
+        const totalPostsElement = document.getElementById('totalPosts');
 
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            await checkAuth();
+
+            // Load posts
+            await loadPosts();
+
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // Authentication check
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // Form submission
+            document.getElementById('postForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        // Load posts from server
         async function loadPosts() {
             setLoading(true);
             try {
-                const response = await fetch('/api/posts');
-                if (!response.ok) throw new Error('Network response was not ok');
+                const response = await fetch('/api/posts', {
+                    credentials: 'include'
+                });
+                if (!response.ok) throw new Error('Failed to load posts');
                 posts = await response.json();
-                console.log('Loaded posts:', posts); // Debug log
                 renderPosts();
+                updateStats();
             } catch (error) {
                 console.error('Error loading posts:', error);
                 showNotification('Failed to load posts. Please try again later.', 'danger');
@@ -300,57 +461,55 @@
             }
         }
 
+        // Set loading state
         function setLoading(isLoading) {
-            document.getElementById('loading').style.display = isLoading ? 'block' : 'none';
+            loadingElement.style.display = isLoading ? 'block' : 'none';
             if (!isLoading) {
                 checkEmptyState();
             } else {
-                document.getElementById('postsContainer').style.display = 'none';
-                document.getElementById('emptyState').classList.add('hidden');
+                postsContainer.style.display = 'none';
+                emptyStateElement.classList.add('hidden');
             }
         }
 
+        // Check if posts are empty
         function checkEmptyState() {
-            const container = document.getElementById('postsContainer');
-            const emptyState = document.getElementById('emptyState');
             if (posts.length === 0) {
-                container.style.display = 'none';
-                emptyState.classList.remove('hidden');
+                postsContainer.style.display = 'none';
+                emptyStateElement.classList.remove('hidden');
             } else {
-                container.style.display = 'grid';
-                emptyState.classList.add('hidden');
+                postsContainer.style.display = 'grid';
+                emptyStateElement.classList.add('hidden');
             }
         }
 
+        // Render posts to the UI
         function renderPosts() {
-            const container = document.getElementById('postsContainer');
-            container.innerHTML = posts.map(post => {
-                // Safely escape the post ID and other data
-                const postId = post.id.toString();
-                const safeHeader = post.announcement_header.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
-                const safeDescription = post.description.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
-                
+            postsContainer.innerHTML = posts.map(post => {
                 return `
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-lg flex flex-col">
-                        <div class="w-full h-48 ${post.featured_image ? '' : 'bg-neutral-200 flex items-center justify-center'}">
+                    <div class="post-card bg-white">
+                        <div class="w-full h-48 ${post.featured_image ? '' : 'bg-gray-200 flex items-center justify-center'}">
                             ${post.featured_image ?
-                        `<img src="${post.featured_image}" alt="${safeHeader}" class="w-full h-full object-cover">` :
-                        `<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`
+                        `<img src="${post.featured_image}" alt="${post.announcement_header}" class="w-full h-full object-cover">` :
+                        `<i class="fas fa-image text-3xl text-gray-400"></i>`
                     }
                         </div>
                         <div class="p-5 flex-grow flex flex-col">
-                            <h3 class="text-lg font-bold text-neutral-800 mb-2 line-clamp-2">${post.announcement_header}</h3>
-                            <p class="text-neutral-600 text-sm mb-4 line-clamp-3 flex-grow">${post.description}</p>
-                            <div class="text-xs text-neutral-400 mb-5 pt-4 border-t border-neutral-200">
-                                Created: ${new Date(post.created).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                            </div>
-                            <div class="flex gap-3">
-                                <button onclick="editPost('${postId}')" class="flex-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 py-2 px-4 rounded-lg text-sm font-semibold transition-colors duration-200">
-                                    Edit
-                                </button>
-                                <button onclick="deletePost('${postId}')" class="flex-1 bg-danger/10 hover:bg-danger/20 text-danger py-2 px-4 rounded-lg text-sm font-semibold transition-colors duration-200">
-                                    Delete
-                                </button>
+                            <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">${post.announcement_header}</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">${post.description}</p>
+                            <div class="siga-divider pt-4 mb-3"></div>
+                            <div class="flex justify-between items-center">
+                                <div class="text-xs text-gray-500">
+                                    <i class="far fa-calendar mr-1"></i> ${new Date(post.created).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="editPost('${post.id}')" class="text-siga-yellow hover:text-siga-yellow-hover">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deletePost('${post.id}')" class="text-siga-red hover:text-siga-red-hover">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -358,70 +517,81 @@
             }).join('');
         }
 
+        // Update stats
+        function updateStats() {
+            totalPostsElement.textContent = posts.length;
+        }
+
+        // Open modal for creating/editing
         function openModal() {
             editingPost = null;
-            document.getElementById('modalTitle').textContent = 'Add New Post';
-            document.getElementById('submitText').textContent = 'Create Post';
+            document.getElementById('modalTitle').textContent = 'Create New Announcement';
+            document.getElementById('submitText').textContent = 'Create';
             document.getElementById('postForm').reset();
             document.getElementById('postId').value = '';
             document.getElementById('currentImagePreview').classList.add('hidden');
-            document.getElementById('modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
+            document.getElementById('modal').classList.remove('invisible', 'opacity-0');
+            document.body.classList.add('overflow-hidden');
         }
 
+        // Close modal
         function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            document.body.style.overflow = 'auto';
+            document.getElementById('modal').classList.add('invisible', 'opacity-0');
+            document.body.classList.remove('overflow-hidden');
         }
 
-        function editPost(id) {
-            console.log('Edit post called with ID:', id); // Debug log
-            const post = posts.find(p => p.id.toString() === id.toString());
-            console.log('Found post:', post); // Debug log
-            
-            if (!post) {
-                console.error('Post not found with ID:', id);
-                showNotification('Post not found', 'danger');
-                return;
+        // Edit post
+        async function editPost(id) {
+            try {
+                const response = await fetch(`/api/posts/${id}`, {
+                    credentials: 'include'
+                });
+                if (!response.ok) throw new Error('Failed to fetch post');
+                const post = await response.json();
+
+                editingPost = post;
+
+                // Populate form
+                document.getElementById('modalTitle').textContent = 'Edit Announcement';
+                document.getElementById('submitText').textContent = 'Update';
+                document.getElementById('postId').value = post.id;
+                document.getElementById('announcement_header').value = post.announcement_header;
+                document.getElementById('description').value = post.description;
+
+                // Show current image if exists
+                const imagePreview = document.getElementById('currentImagePreview');
+                if (post.featured_image) {
+                    document.getElementById('currentImage').src = post.featured_image;
+                    imagePreview.classList.remove('hidden');
+                } else {
+                    imagePreview.classList.add('hidden');
+                }
+
+                // Open modal
+                document.getElementById('modal').classList.remove('invisible', 'opacity-0');
+                document.body.classList.add('overflow-hidden');
+            } catch (error) {
+                console.error('Error editing post:', error);
+                showNotification('Failed to load post for editing', 'danger');
             }
-
-            editingPost = post;
-
-            // Reset form and then populate it with the existing post data
-            document.getElementById('postForm').reset();
-            document.getElementById('modalTitle').textContent = 'Edit Post';
-            document.getElementById('submitText').textContent = 'Update Post';
-            document.getElementById('postId').value = post.id;
-            document.getElementById('announcement_header').value = post.announcement_header;
-            document.getElementById('description').value = post.description;
-
-            const imagePreview = document.getElementById('currentImagePreview');
-            if (post.featured_image) {
-                document.getElementById('currentImage').src = post.featured_image;
-                imagePreview.classList.remove('hidden');
-            } else {
-                imagePreview.classList.add('hidden');
-            }
-
-            // Show the modal
-            document.getElementById('modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
         }
 
+        // Delete post
         async function deletePost(id) {
-            if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) return;
+            if (!confirm('Are you sure you want to delete this announcement? This action cannot be undone.')) return;
 
             try {
                 const response = await fetch(`/api/posts/${id}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
-                    showNotification('Post deleted successfully', 'success');
-                    loadPosts();
+                    showNotification('Announcement deleted successfully', 'success');
+                    await loadPosts();
                 } else {
-                    const error = await response.json().catch(() => ({ error: 'Failed to delete post' }));
-                    showNotification(error.error || 'Failed to delete post', 'danger');
+                    const error = await response.json().catch(() => ({ error: 'Failed to delete announcement' }));
+                    showNotification(error.error || 'Failed to delete announcement', 'danger');
                 }
             } catch (error) {
                 console.error('Error deleting post:', error);
@@ -429,79 +599,103 @@
             }
         }
 
-        document.getElementById('postForm').addEventListener('submit', async (e) => {
+        // Handle form submission
+        async function handleFormSubmit(e) {
             e.preventDefault();
 
-            const submitButton = document.querySelector('button[type="submit"][form="postForm"]');
-            const originalSubmitText = submitButton.querySelector('span').textContent;
-            submitButton.disabled = true;
-            submitButton.innerHTML = `<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>`;
-
-            const formData = new FormData(e.target);
+            const form = e.target;
+            const formData = new FormData(form);
             const isEditing = editingPost !== null;
             const url = isEditing ? `/api/posts/${editingPost.id}` : '/api/posts';
             const method = isEditing ? 'PUT' : 'POST';
 
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalSubmitText = submitButton.innerHTML;
+
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>
+            `;
+
             try {
                 const response = await fetch(url, {
                     method: method,
-                    body: formData
+                    body: formData,
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
-                    showNotification(isEditing ? 'Post updated successfully' : 'Post created successfully', 'success');
+                    const data = await response.json();
+                    showNotification(
+                        isEditing ? 'Announcement updated successfully' : 'Announcement created successfully',
+                        'success'
+                    );
                     closeModal();
-                    loadPosts();
+                    await loadPosts();
                 } else {
-                    const error = await response.json().catch(() => ({ error: 'Failed to save post' }));
-                    showNotification(error.error || 'Failed to save post', 'danger');
+                    const error = await response.json().catch(() => ({ error: 'Failed to save announcement' }));
+                    showNotification(error.error || 'Failed to save announcement', 'danger');
                 }
             } catch (error) {
                 console.error('Error saving post:', error);
                 showNotification('An unexpected error occurred', 'danger');
             } finally {
                 submitButton.disabled = false;
-                submitButton.innerHTML = `<span id="submitText">${originalSubmitText}</span>`;
+                submitButton.innerHTML = originalSubmitText;
             }
-        });
-
-        function showNotification(message, type = 'success') {
-            const toast = document.getElementById('notification-toast');
-            const messageP = document.getElementById('notification-message');
-
-            messageP.textContent = message;
-
-            // Reset classes
-            toast.className = 'p-4 rounded-lg shadow-lg text-white max-w-sm';
-
-            if (type === 'success') {
-                toast.classList.add('bg-success');
-            } else if (type === 'danger') {
-                toast.classList.add('bg-danger');
-            } else {
-                toast.classList.add('bg-neutral-800');
-            }
-
-            toast.classList.add('show');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
         }
 
-        // Close modal on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === "Escape" && document.getElementById('modal').classList.contains('active')) {
-                closeModal();
-            }
-        });
+        // Logout
+        async function logout() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
 
-        // Close modal when clicking outside the content
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('modal')) {
-                closeModal();
+                if (response.ok) {
+                    window.location.href = '/login.html';
+                } else {
+                    console.error('Logout failed');
+                    showNotification('Logout failed. Please try again.', 'danger');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                showNotification('An unexpected error occurred during logout', 'danger');
             }
-        });
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const toast = document.getElementById('notification-toast');
+            const icon = document.getElementById('notification-icon');
+            const messageSpan = toast.querySelector('span');
+
+            messageSpan.textContent = message;
+
+            // Set styling based on type
+            toast.className = 'fixed top-6 right-6 z-[100] p-4 text-white max-w-sm notification-toast transform translate-x-0 transition-transform duration-400';
+
+            if (type === 'success') {
+                toast.classList.add('bg-siga-green');
+                icon.className = 'fas fa-check-circle mr-3';
+            } else if (type === 'danger') {
+                toast.classList.add('bg-siga-red');
+                icon.className = 'fas fa-exclamation-circle mr-3';
+            } else if (type === 'warning') {
+                toast.classList.add('bg-siga-yellow');
+                icon.className = 'fas fa-exclamation-triangle mr-3';
+            } else {
+                toast.classList.add('bg-gray-800');
+                icon.className = 'fas fa-info-circle mr-3';
+            }
+
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                toast.style.transform = 'translateX(120%)';
+            }, 3000);
+        }
     </script>
 </body>
 

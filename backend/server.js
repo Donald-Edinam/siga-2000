@@ -1,85 +1,132 @@
-// server.js
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const session = require('express-session');
-const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+require('dotenv').config();
+
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/uploads', express.static('uploads'));
+app.use(express.urlencoded({ extended: true }));
 
 // Session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'a-very-strong-secret-key',
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: process.env.NODE_ENV === 'production' } // Use secure cookies in production
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
-// --- Authentication Middleware ---
-const checkAuth = (req, res, next) => {
-  if (req.session.isAuthenticated) {
-    next();
-  } else {
-    res.redirect('/login');
+app.use('/uploads', express.static('uploads'));
+
+// Simple user database
+const users = [
+  {
+    id: 1,
+    username: 'admin',
+    password: '$2b$10$2OQXQXgk/iMwQZIbvJH.KeJn/2OjPZHvG9RKJy9Z0xyfpLUEgKvj6' // admin123
   }
-};
+];
 
-// --- Routes ---
-
-// Login page
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-// Login action
+// Login route
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'password';
-
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    req.session.isAuthenticated = true;
-    res.redirect('/admin');
-  } else {
-    // Optional: Add an error message to the login page
-    res.redirect('/login?error=1');
+  
+  const user = users.find(u => u.username === username);
+  
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid credentials' });
   }
-});
 
-// Logout action
-app.get('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.redirect('/admin');
+  bcrypt.compare(password, user.password, (err, result) => {
+    if (err || !result) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
-    res.clearCookie('connect.sid');
-    res.redirect('/login');
+    
+    req.session.userId = user.id;
+    req.session.authenticated = true;
+    
+    res.json({ success: true, redirect: '/admin' });
   });
 });
 
-// Protected Admin Route
-app.use('/admin', checkAuth, express.static(path.join(__dirname, '../frontend/dist')));
-
-app.get('/admin/*', checkAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+// Logout route
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+    res.clearCookie('connect.sid');
+    res.redirect('/login.html');
+  });
 });
 
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.authenticated) {
+    return next();
+  }
+  res.status(401).json({ error: 'Unauthorized' });
+};
+
+// Auth check endpoint
+app.get('/api/check-auth', (req, res) => {
+  if (req.session.authenticated) {
+    res.status(200).end();
+  } else {
+    res.status(401).end();
+  }
+});
+
+// Serve login page
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Admin Route
+app.use('/admin', requireAuth, express.static(path.join(__dirname, 'public'), {
+  maxAge: '1y',
+  immutable: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+    res.setHeader('X-Frame-Options', 'DENY');
+  }
+}));
+
+app.use('/assets', requireAuth, express.static(path.join(__dirname, 'public/assets'), {
+  maxAge: '1y',
+  immutable: true
+}));
+
+app.get('/admin/*', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Create uploads directory if it doesn't exist
 if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
 }
 
-// Simple in-memory storage (replace with a database in production)
+// Simple in-memory storage
 let posts = [
   {
     id: '1',
@@ -115,30 +162,26 @@ const upload = multer({
       cb(new Error('Only image files are allowed!'));
     }
   },
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-// API Routes (Protected by Basic Auth)
+// Protect API routes
+app.use('/api', requireAuth);
 
-// Get all posts (for your frontend)
+// API Routes
 app.get('/api/posts', (req, res) => {
   const postsWithImageUrls = posts.map(post => ({
     ...post,
     featured_image: post.featured_image_filename ? `${req.protocol}://${req.get('host')}/uploads/${post.featured_image_filename}` : null
   }));
   
-  // Sort by created date (newest first)
   postsWithImageUrls.sort((a, b) => new Date(b.created) - new Date(a.created));
-  
   res.json(postsWithImageUrls);
 });
 
-// Get single post
 app.get('/api/posts/:id', (req, res) => {
   const post = posts.find(p => p.id === req.params.id);
-  if (!post) {
-    return res.status(404).json({ error: 'Post not found' });
-  }
+  if (!post) return res.status(404).json({ error: 'Post not found' });
   
   const postWithImageUrl = {
     ...post,
@@ -148,13 +191,8 @@ app.get('/api/posts/:id', (req, res) => {
   res.json(postWithImageUrl);
 });
 
-// Create new post
-app.post('/api/posts', checkAuth, upload.single('image'), (req, res) => {
+app.post('/api/posts', upload.single('image'), (req, res) => {
   try {
-    console.log('CREATE request received');
-    console.log('Request body:', req.body);
-    console.log('File uploaded:', req.file ? req.file.filename : 'No file');
-    
     const { announcement_header, description } = req.body;
     
     if (!announcement_header || !description) {
@@ -179,28 +217,22 @@ app.post('/api/posts', checkAuth, upload.single('image'), (req, res) => {
     
     res.status(201).json(postWithImageUrl);
   } catch (error) {
-    console.error('Error in POST route:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Update post
-app.put('/api/posts/:id', checkAuth, upload.single('image'), (req, res) => {
+
+app.put('/api/posts/:id', upload.single('image'), (req, res) => {
   try {
     const postIndex = posts.findIndex(p => p.id === req.params.id);
-    if (postIndex === -1) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
+    if (postIndex === -1) return res.status(404).json({ error: 'Post not found' });
     
     const { announcement_header, description } = req.body;
     const existingPost = posts[postIndex];
     
-    // Delete old image if new one is uploaded
     if (req.file && existingPost.featured_image_filename) {
-        const oldImagePath = path.join('uploads', existingPost.featured_image_filename);
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-      }
+      const oldImagePath = path.join('uploads', existingPost.featured_image_filename);
+      if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
     }
     
     const updatedPost = {
@@ -224,22 +256,16 @@ app.put('/api/posts/:id', checkAuth, upload.single('image'), (req, res) => {
   }
 });
 
-// Delete post
-app.delete('/api/posts/:id', checkAuth, (req, res) => {
+app.delete('/api/posts/:id', (req, res) => {
   try {
     const postIndex = posts.findIndex(p => p.id === req.params.id);
-    if (postIndex === -1) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
+    if (postIndex === -1) return res.status(404).json({ error: 'Post not found' });
     
     const post = posts[postIndex];
     
-    // Delete associated image
     if (post.featured_image_filename) {
       const imagePath = path.join('uploads', post.featured_image_filename);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
+      if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
     }
     
     posts.splice(postIndex, 1);
@@ -249,11 +275,9 @@ app.delete('/api/posts/:id', checkAuth, (req, res) => {
   }
 });
 
-
-
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Admin panel available at http://localhost:${PORT}/admin`);
-  console.log(`API endpoint: http://localhost:${PORT}/api/posts`);
+  console.log(`Admin panel: http://localhost:${PORT}/admin`);
+  console.log(`Login page: http://localhost:${PORT}/login.html`);
 });
