@@ -14,73 +14,93 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --siga-green: #28a745;
-            --siga-green-hover: #218838;
-            --siga-yellow: #ffc107;
-            --siga-yellow-hover: #e0a800;
-            --siga-red: #dc3545;
-            --siga-red-hover: #c82333;
-            --siga-light: #e9f5eb;
-            --siga-dark: #1e4620;
+            --siga-green: #22c55e;
+            --siga-green-hover: #16a34a;
+            --siga-green-light: #dcfce7;
+            --siga-red: #ef4444;
+            --siga-red-hover: #dc2626;
+            --siga-yellow: #f59e0b;
+            --siga-yellow-hover: #d97706;
+            --siga-dark: #1f2937;
         }
 
         body {
-            font-family: "Titillium Web" sans-serif;
+            font-family: 'Titillium Web', sans-serif;
             background-color: #f8fafc;
-            color: #1e293b;
         }
 
+        .bg-siga-green { background-color: var(--siga-green); }
+        .bg-siga-green-hover { background-color: var(--siga-green-hover); }
+        .bg-siga-light { background-color: var(--siga-green-light); }
+        .bg-siga-red { background-color: var(--siga-red); }
+        .bg-siga-yellow { background-color: var(--siga-yellow); }
+        
+        .text-siga-green { color: var(--siga-green); }
+        .text-siga-red { color: var(--siga-red); }
+        .text-siga-yellow { color: var(--siga-yellow); }
+        .text-siga-yellow-hover { color: var(--siga-yellow-hover); }
+        .text-siga-red-hover { color: var(--siga-red-hover); }
+        .text-siga-dark { color: var(--siga-dark); }
+
+        .hover\:bg-siga-green-hover:hover { background-color: var(--siga-green-hover); }
+        .hover\:text-siga-red:hover { color: var(--siga-red); }
+        .hover\:text-siga-dark:hover { color: var(--siga-dark); }
+
         .dashboard-header {
-            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-            box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.05);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
 
         .stat-card {
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-            border: 1px solid #f1f5f9;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
-            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }
 
         .post-card {
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-            border: 1px solid #f1f5f9;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .post-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .post-card img {
+            border-radius: 0;
         }
 
         .btn-primary {
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(40, 167, 69, 0.15), 0 2px 4px -1px rgba(40, 167, 69, 0.06);
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(40, 167, 69, 0.2), 0 4px 6px -2px rgba(40, 167, 69, 0.1);
+        .btn-primary:hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
 
-        .notification-toast {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-radius: 12px;
-        }
-
-        .modal-backdrop {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border-radius: 16px;
-            border: 1px solid #f1f5f9;
+        .btn-primary:hover::before {
+            left: 100%;
         }
 
         .line-clamp-2 {
@@ -97,39 +117,39 @@
             overflow: hidden;
         }
 
-        .siga-badge {
-            background-color: #e9f5eb;
-            color: #1e4620;
-            border-radius: 20px;
-            padding: 2px 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
         .siga-divider {
-            border-top: 1px dashed #e2e8f0;
+            border-top: 1px solid #e2e8f0;
         }
 
-        .siga-tag {
-            background-color: #fff8e6;
-            color: #7d6608;
-            border-radius: 4px;
-            padding: 2px 8px;
-            font-size: 0.75rem;
-            font-weight: 500;
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .notification-toast {
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         @media (max-width: 768px) {
-            .stat-card {
-                margin-bottom: 1rem;
-            }
-
             .mobile-flex-col {
                 flex-direction: column;
+                align-items: flex-start;
             }
-
+            
             .mobile-mt-4 {
                 margin-top: 1rem;
+            }
+            
+            .mobile-flex-col .flex {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
             }
         }
     </style>
@@ -165,7 +185,6 @@
                             <p class="text-sm font-medium text-gray-800">System Administrator</p>
                             <p class="text-xs text-gray-600">admin@siga.com</p>
                         </div>
-                        <!-- <div class="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10" /> -->
                     </div>
 
                     <button id="logoutBtn"
@@ -199,37 +218,6 @@
                     </div>
                 </div>
 
-                <!-- <div class="stat-card bg-white p-5">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm text-gray-600">Active Users</p>
-                            <h3 class="text-2xl font-bold mt-1">1.2K</h3>
-                        </div>
-                        <div class="p-3 rounded-lg bg-green-50 text-green-600">
-                            <i class="fas fa-users text-lg"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500 flex items-center">
-                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
-                        <span>3.5% from last month</span>
-                    </div>
-                </div> -->
-                <!--                 
-                <div class="stat-card bg-white p-5">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm text-gray-600">Pending Reviews</p>
-                            <h3 class="text-2xl font-bold mt-1 text-siga-yellow">0</h3>
-                        </div>
-                        <div class="p-3 rounded-lg bg-amber-50 text-amber-600">
-                            <i class="fas fa-file-alt text-lg"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500">
-                        Needs your attention
-                    </div>
-                </div> -->
-
                 <div class="stat-card bg-white p-5">
                     <div class="flex justify-between items-start">
                         <div>
@@ -256,13 +244,7 @@
                     <h2 class="text-2xl font-bold text-gray-800">Announcements</h2>
                     <p class="text-gray-600 mt-1">Manage your enterprise communications</p>
                 </div>
-                <div class="flex items-center gap-3 bg-green-600 rounded hover:bg-green-700 active:bg-green-800">
-                    <!-- <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-search text-gray-400"></i>
-                        </div>
-                        <input id="searchInput" type="text" placeholder="Search announcements..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-siga-green focus:border-transparent transition-all duration-200 w-full md:w-64">
-                    </div> -->
+                <div>
                     <button onclick="openModal()"
                         class="btn-primary bg-siga-green hover:bg-siga-green-hover text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors duration-200 flex items-center gap-2">
                         <i class="fas fa-plus"></i>
@@ -386,7 +368,7 @@
                     class="px-6 py-2.5 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-100 transition-colors duration-200">
                     Cancel
                 </button>
-                <button type="submit" form="postForm"
+                <button type="submit" form="postForm" id="submitButton"
                     class="btn-primary px-6 py-2.5 bg-siga-green hover:bg-siga-green-hover text-white rounded-lg text-sm font-semibold shadow-sm transition-colors duration-200 flex items-center justify-center min-w-[120px]">
                     <span id="submitText">Create</span>
                 </button>
@@ -407,31 +389,12 @@
 
         // Initialize application
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check authentication
-            await checkAuth();
-
-            // Load posts
+            // Load posts without authentication check
             await loadPosts();
-
+            
             // Setup event listeners
             setupEventListeners();
         });
-
-        // Authentication check
-        async function checkAuth() {
-            try {
-                const response = await fetch('/api/check-auth', {
-                    credentials: 'include'
-                });
-
-                if (!response.ok) {
-                    window.location.href = '/login.html';
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                window.location.href = '/login.html';
-            }
-        }
 
         // Setup event listeners
         function setupEventListeners() {
@@ -446,16 +409,31 @@
         async function loadPosts() {
             setLoading(true);
             try {
-                const response = await fetch('/api/posts', {
-                    credentials: 'include'
-                });
-                if (!response.ok) throw new Error('Failed to load posts');
+                const response = await fetch('/api/posts');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Unexpected response: ${text.substring(0, 100)}`);
+                }
+                
                 posts = await response.json();
                 renderPosts();
                 updateStats();
             } catch (error) {
                 console.error('Error loading posts:', error);
-                showNotification('Failed to load posts. Please try again later.', 'danger');
+                
+                // Show detailed error message
+                const errorMsg = error.message.includes('Unexpected response') 
+                    ? 'Server returned non-JSON response. Check server configuration.' 
+                    : 'Failed to load posts. Please try again later.';
+                
+                showNotification(errorMsg, 'danger');
             } finally {
                 setLoading(false);
             }
@@ -503,10 +481,10 @@
                                     <i class="far fa-calendar mr-1"></i> ${new Date(post.created).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                                 </div>
                                 <div class="flex gap-2">
-                                    <button onclick="editPost('${post.id}')" class="text-siga-yellow hover:text-siga-yellow-hover">
+                                    <button onclick="editPost('${post._id}')" class="text-siga-yellow hover:text-siga-yellow-hover">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button onclick="deletePost('${post.id}')" class="text-siga-red hover:text-siga-red-hover">
+                                    <button onclick="deletePost('${post._id}')" class="text-siga-red hover:text-siga-red-hover">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -543,18 +521,22 @@
         // Edit post
         async function editPost(id) {
             try {
-                const response = await fetch(`/api/posts/${id}`, {
-                    credentials: 'include'
-                });
+                const response = await fetch(`/api/posts/${id}`);
                 if (!response.ok) throw new Error('Failed to fetch post');
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Unexpected response: ${text.substring(0, 100)}`);
+                }
+                
                 const post = await response.json();
-
                 editingPost = post;
 
                 // Populate form
                 document.getElementById('modalTitle').textContent = 'Edit Announcement';
                 document.getElementById('submitText').textContent = 'Update';
-                document.getElementById('postId').value = post.id;
+                document.getElementById('postId').value = post._id;
                 document.getElementById('announcement_header').value = post.announcement_header;
                 document.getElementById('description').value = post.description;
 
@@ -582,16 +564,21 @@
 
             try {
                 const response = await fetch(`/api/posts/${id}`, {
-                    method: 'DELETE',
-                    credentials: 'include'
+                    method: 'DELETE'
                 });
 
                 if (response.ok) {
                     showNotification('Announcement deleted successfully', 'success');
                     await loadPosts();
                 } else {
-                    const error = await response.json().catch(() => ({ error: 'Failed to delete announcement' }));
-                    showNotification(error.error || 'Failed to delete announcement', 'danger');
+                    // Check for JSON response
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const error = await response.json();
+                        showNotification(error.error || 'Failed to delete announcement', 'danger');
+                    } else {
+                        throw new Error('Non-JSON response from server');
+                    }
                 }
             } catch (error) {
                 console.error('Error deleting post:', error);
@@ -606,10 +593,19 @@
             const form = e.target;
             const formData = new FormData(form);
             const isEditing = editingPost !== null;
-            const url = isEditing ? `/api/posts/${editingPost.id}` : '/api/posts';
+            const url = isEditing ? `/api/posts/${editingPost._id}` : '/api/posts';
             const method = isEditing ? 'PUT' : 'POST';
 
-            const submitButton = form.querySelector('button[type="submit"]');
+            // Get the submit button by ID instead of querySelector
+            const submitButton = document.getElementById('submitButton');
+            
+            // Add null check for safety
+            if (!submitButton) {
+                console.error('Submit button not found');
+                showNotification('Form submission error', 'danger');
+                return;
+            }
+
             const originalSubmitText = submitButton.innerHTML;
 
             // Show loading state
@@ -621,11 +617,16 @@
             try {
                 const response = await fetch(url, {
                     method: method,
-                    body: formData,
-                    credentials: 'include'
+                    body: formData
                 });
 
                 if (response.ok) {
+                    // Check for JSON response
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Server returned non-JSON response');
+                    }
+                    
                     const data = await response.json();
                     showNotification(
                         isEditing ? 'Announcement updated successfully' : 'Announcement created successfully',
@@ -634,28 +635,34 @@
                     closeModal();
                     await loadPosts();
                 } else {
-                    const error = await response.json().catch(() => ({ error: 'Failed to save announcement' }));
-                    showNotification(error.error || 'Failed to save announcement', 'danger');
+                    // Check for JSON error response
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const error = await response.json();
+                        showNotification(error.error || 'Failed to save announcement', 'danger');
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                 }
             } catch (error) {
                 console.error('Error saving post:', error);
-                showNotification('An unexpected error occurred', 'danger');
+                showNotification(`Network error: ${error.message}`, 'danger');
             } finally {
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalSubmitText;
             }
         }
 
-        // Logout
+        // Logout - modified to redirect to home page
         async function logout() {
             try {
                 const response = await fetch('/logout', {
-                    method: 'GET',
-                    credentials: 'include'
+                    method: 'GET'
                 });
 
                 if (response.ok) {
-                    window.location.href = '/login.html';
+                    // Redirect to home page
+                    window.location.href = '/';
                 } else {
                     console.error('Logout failed');
                     showNotification('Logout failed. Please try again.', 'danger');
@@ -698,5 +705,4 @@
         }
     </script>
 </body>
-
 </html>
